@@ -1,0 +1,26 @@
+{
+  "name": "iiko-biz-server-api",
+  "version": "0.0.0",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mulesoft/raml-javascript-generator.git"
+  },
+  "keywords": [
+    "raml-api"
+  ],
+  "author": "MuleSoft, Inc.",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mulesoft/raml-javascript-generator/issues"
+  },
+  "homepage": "https://github.com/mulesoft/raml-javascript-generator",
+  "dependencies": {
+    "xtend": "^4.0.1",
+    "popsicle": "^5.0.0",
+    "setprototypeof": "^1.0.1"
+  }
+}
