@@ -1,0 +1,20 @@
+{
+  "name": "iikobiz-serverapi-raml",
+  "version": "0.0.1",
+  "description": "iikoBiz Server API documentation in RAML format for futher JS client generation.",
+  "main": "build/js-client/index.js",
+  "scripts": {
+    "build": "./build.sh",
+    "postinstall": "./build.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Denis Obydennykh",
+  "license": "ISC",
+  "dependencies": {
+    "raml-javascript-generator": "^1.0.0-0",
+    "raml2html": "^6.4.0",
+    "xtend": "^4.0.1",
+    "popsicle": "^5.0.0",
+    "setprototypeof": "^1.0.1"
+  }
+}

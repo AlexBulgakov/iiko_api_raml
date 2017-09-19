@@ -1,0 +1,336 @@
+#%RAML 1.0
+title: iikoBiz Server API
+baseUri: https://iiko.biz:9900
+version: v1
+mediaType: application/json
+protocols: [HTTP, HTTPS]
+
+securitySchemes:
+  digest:
+    description: |
+      This API supports DigestSecurityScheme Authentication rfc2617
+    type: Digest Authentication
+
+securedBy: [digest]
+
+
+types:
+  AccessKey:
+
+/api/0:
+  ####################################################################
+  #
+  # AUTH
+  #
+  ####################################################################
+  /auth:
+    /access_token:
+      description: Получить маркер доступа апи логина
+      get:
+        securedBy: [null]
+        queryParameters:
+          user_id:
+            type: string
+            required: true
+            description: Идентификатор клиента
+          user_secret:
+            type: string
+            required: true
+            description: Пароль клиента
+        responses:
+         200:
+          description: Маркер доступа апи логина, используемый для авторизации в службах iikoBiz
+          body:
+           application/json:
+
+    /echo:
+      description: Проверка маркера доступа апи логина
+      get:
+        securedBy: [null]
+        queryParameters:
+          msg:
+            type: string
+            required: true
+            description: Сообщение
+          accessToken:
+            type: string
+            required: true
+            description: Маркер доступа
+        responses:
+         200:
+          description: Сообщение, или “Wrong access token”, если маркер доступа не прошел проверку.
+          body:
+           application/json:
+
+    /biz_access_token:
+      description: Получить маркер доступа пользователя biz
+      get:
+        securedBy: [null]
+        queryParameters:
+          user_ext_id:
+            type: string
+            required: true
+            description: Внешний ключ для авторизации пользователя iiko.biz
+        responses:
+         200:
+          description: Маркер доступа пользователя iiko.biz, используемый для авторизации в службах iikoBiz
+          body:
+           application/json:
+
+  ####################################################################
+  #
+  # MOBILEIIKOCARD5
+  #
+  ####################################################################
+  /mobileIikoCard5:
+    /authenticatePhone:
+      description: Аутентификация номера телефона гостя
+      post:
+        queryParameters: #todo format all this as AuthenticatePhoneRequest ?
+          accessToken:
+            type: string
+            required: true
+            description: Маркер доступа
+          organizationId:
+            type: string # todo Guid
+            required: true
+            description: Идентификатор организации
+          phoneNumber:
+            type: string
+            required: true
+            description: Номер телефона, по которому будет производиться поиск гостя
+        responses: # todo AuthenticatePhoneResult
+         200:
+          description: Результат поиска
+          body:
+           application/json:
+
+  ####################################################################
+  #
+  # CUSTOMERS
+  #
+  ####################################################################
+  /customers:
+    /get_customer_by_id:
+      description: Получить данные гостя по его идентификатору
+      get:
+        queryParameters: #todo format all this as AuthenticatePhoneRequest ?
+          accessToken:
+            type: string
+            required: true
+            description: Маркер доступа
+          organization: # todo bug - as is "organization" / expected "organizationId"
+            type: string # todo Guid
+            required: true
+            description: Идентификатор организации
+          id:
+            type: string # todo Guid
+            required: true
+            description: Идентификатор гостя
+        responses: # todo OrganizationGuestInfo
+         200:
+          description: Данные гостя (включая баланс)
+          body:
+           application/json:
+
+  ####################################################################
+  #
+  # ORGANIZATION
+  #
+  ####################################################################
+  /organization:
+    /list:
+      description: Получение списка организаций
+      get:
+        queryParameters:
+          access_token:
+            type: string
+            required: true
+            description: Маркер доступа
+          requestTimeout:
+            type: string # todo TimeSpan
+            required: true
+            description: Таймаут для выполнения запроса. Указывает на время обработки запроса на серверной стороне, не учитывая транспортные задержки.
+        responses:
+         200:
+          description: Информация о организациях.
+          body:
+           application/json:
+            type: object # todo OrganizationInfo[]
+            #example: |
+            #{
+            #   { "organizationId":"1721531da-7ed5-4cf8-3ad1f-370031d2e6b1", “name”:”ArteFAQ”},
+            #   { "organizationId":"1721531da-7ed5-4cf8-3ad1f-370031d2e6b2", “name”:”DeFAQto”}
+            # }
+
+      /{organizationId}:
+        description: Получение информации о заданной организации
+        get:
+          queryParameters:
+            access_token:
+              type: string
+              required: true
+              description: Маркер доступа
+            requestTimeout:
+              type: string # todo TimeSpan
+              required: true
+              description: Таймаут для выполнения запроса. Указывает на время обработки запроса на серверной стороне, не учитывая транспортные задержки.
+          responses:
+           200:
+            description: Информация о организациях.
+            body:
+             application/json:
+              type: object # todo OrganizationInfo
+              #example: |
+              #  {
+              #    "organizationId":"1721531da-7ed5-4cf8-3ad1f-370031d2e6b1", “name”:”ArteFAQ”,
+              #    “description”:”Greate place to socialize and meet with ladies”,
+              #    “location”:”Moscow-somewhere (ask google for geolocation and route)”
+              #  }
+
+
+      /{organizationId}/supportedProtocols:
+        description: Получение списка протоколов заданной организции
+        get:
+          queryParameters:
+            access_token:
+              type: string
+              required: true
+              description: Маркер доступа
+          responses:
+           200:
+            description: Информация о организациях.
+            body:
+             application/json:
+              type: object # todo  OrganizationSupportedProtocols |  OrganizationSupportedProtocols[]
+
+
+  ####################################################################
+  #
+  # RMS SETTINGS
+  #
+  ####################################################################
+  /rmsSettings:
+
+    /getRoles:
+      description: Получение списка ролей организации
+      get:
+        queryParameters:
+          access_token:
+            type: string
+            required: true
+            description: Маркер доступа
+          organizationId: # todo check organization || organizationId ?
+            type: string # todo Guid
+            required: true
+            description: 	Идентификатор организации
+        responses:
+         200:
+          description: Список всех ролей организации
+          body:
+           application/json:
+            type: object # todo OrganizationRoleResponse
+
+    /getEmployees:
+      description: Получение списка сотрудников организации
+      get:
+        queryParameters:
+          access_token:
+            type: string
+            required: true
+            description: Маркер доступа
+          organizationId: # todo check organization || organizationId ?
+            type: string # todo Guid
+            required: true
+            description: 	Идентификатор организации
+        responses:
+         200:
+          description: Список всех сотрудников организации
+          body:
+           application/json:
+            type: object # todo OrganizationUserResponse
+
+    /getRestaurantSections:
+      description: Получение списка залов организации
+      get:
+        queryParameters:
+          access_token:
+            type: string
+            required: true
+            description: Маркер доступа
+          organizationId: # todo check organization || organizationId ?
+            type: string # todo Guid
+            required: true
+            description: 	Идентификатор организации
+        responses:
+         200:
+          description: Список всех залов организации
+          body:
+           application/json:
+            type: object # todo RestaurantSectionsResponse
+
+  /nomenclature:
+    /{organizationId}:
+      description: Получить дерево номенклатуры
+      get:
+        queryParameters:
+          access_token:
+            type: string
+            required: true
+            description: Маркер доступа
+          revision:
+            type: integer
+            required: false
+            description: Ревизия
+        responses:
+         200:
+          description: Один запрос возвращает информацию как о группах, так и о продуктах. Ревизия одна на все дерево продуктов. Метод возвращает полное дерево продуктов, если в нем были изменения, null, если переданная ревизия является актуальной.
+          body:
+           application/json:
+            type: object # todo response
+
+    /getOrderTypes:
+      description: Получение списка допустимых типов заказов
+      get:
+        queryParameters:
+          access_token:
+            type: string
+            required: true
+            description: Маркер доступа
+          organizationId: # todo check organization || organizationId ?
+            type: string # todo Guid
+            required: true
+            description: 	Идентификатор организации
+        responses:
+         200:
+          description: Справочник типов заказов
+          body:
+           application/json:
+            type: object # todo OrderTypesResponse
+
+
+####################################################################
+#
+# APPLICATION MARKET
+#
+####################################################################
+/applicationMarket:
+  /userInfo:
+    description: Получить информацию о заданном пользователе biz, доступную для заданного апи логина
+    get:
+      queryParameters:
+        api_access_token:
+          type: string
+          required: true
+          description: Маркер доступа апи логина
+        bizAccessToken:
+          type: string
+          required: true
+          description: Маркер доступа пользователя biz
+      responses:
+       200:
+        description: Информация о пользователе biz из bizAccessToken, организациях, в которые он входит и которые могут работать с апи логином из apiAccessToken
+        body:
+         application/json:
+         # todo type: UserInfo
+`y
